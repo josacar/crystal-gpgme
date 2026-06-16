@@ -1,0 +1,28 @@
+name: gpgme
+version: 0.1.0
+
+authors:
+  - crystal-gpgme contributors
+
+license: LGPL-2.1-or-later
+crystal: ">= 1.10.0"
+
+repository: https://github.com/crystal-gpgme/crystal-gpgme
+
+description: |
+  Crystal bindings for GPGME (GnuPG Made Easy), mimicking the ruby-gpgme API.
+
+dependencies:
+  # No runtime dependencies.
+
+development_dependencies:
+  ameba:
+    github: crystal-ameba/ameba
+    version: ~> 1.0
+
+scripts:
+  postinstall: make
+
+targets:
+  gpgme:
+    main: src/gpgme.cr
