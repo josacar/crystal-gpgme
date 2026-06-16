@@ -34,7 +34,7 @@ module GPGME
 
   class DecryptResult
     getter unsupported_algorithm : String?
-    getter wrong_key_usage : Bool
+    getter? wrong_key_usage : Bool
     getter recipients : Array(Recipient)
     getter file_name : String?
 

@@ -22,8 +22,8 @@ module GPGME
     end
 
     def self.remove_all_keys
-      Key.find(:public).each { |k| k.delete!(true, true) }
-      Key.find(:secret).each { |k| k.delete!(true, true) }
+      Key.find(:public).each(&.delete!(true, true))
+      Key.find(:secret).each(&.delete!(true, true))
     rescue
       # ignore
     end

@@ -64,43 +64,44 @@ module GPGME
       t == 0 ? nil : Time.unix(t.to_i64)
     end
 
-    def from : String
+    def from : String?
       return @from_cache if @from_cache
 
-      if fingerprint && (key = self.key)
-        uid = key.uids.first?
-        @from_cache = "#{key.subkeys.first.try(&.keyid)} #{uid.try(&.uid)}"
-      else
-        @from_cache = fingerprint
-      end
-      @from_cache.not_nil!
+      @from_cache = if fingerprint && (key = self.key)
+                      uid = key.uids.first?
+                      "#{key.subkeys.first.try(&.keyid)} #{uid.try(&.uid)}"
+                    else
+                      fingerprint
+                    end
+      @from_cache
     end
 
     def key : Key?
       return @key if @key
 
-      if fingerprint
-        @key = Key.get(fingerprint.not_nil!)
+      if fp = fingerprint
+        @key = Key.get(fp)
       end
       @key
     end
 
     def to_s : String
+      origin = from || "unknown"
       case status_code
       when GPGME::GPG_ERR_NO_ERROR
-        "Good signature from #{from}"
+        "Good signature from #{origin}"
       when GPGME::GPG_ERR_SIG_EXPIRED
-        "Expired signature from #{from}"
+        "Expired signature from #{origin}"
       when GPGME::GPG_ERR_KEY_EXPIRED
-        "Signature made from expired key #{from}"
+        "Signature made from expired key #{origin}"
       when GPGME::GPG_ERR_CERT_REVOKED
-        "Signature made from revoked key #{from}"
+        "Signature made from revoked key #{origin}"
       when GPGME::GPG_ERR_BAD_SIGNATURE
-        "Bad signature from #{from}"
+        "Bad signature from #{origin}"
       when GPGME::GPG_ERR_NO_PUBKEY
-        "No public key for #{from}"
+        "No public key for #{origin}"
       else
-        "Unknown signature status from #{from}"
+        "Unknown signature status from #{origin}"
       end
     end
   end

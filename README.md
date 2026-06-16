@@ -91,6 +91,7 @@ GPGME::Key.import(File.open("my.key"))
 
 ```sh
 shards install
+make           # Build the C helper for struct accessors
 crystal spec
 ```
 

@@ -27,12 +27,12 @@ module GPGME
           else
             ctx.encrypt(recipients || [] of Key, plain_data, cipher_data, flags)
           end
-        rescue exc : GPGME::Error::UnusablePublicKey
-          exc.keys = ctx.encrypt_result.invalid_recipients
-          raise exc
-        rescue exc : GPGME::Error::UnusableSecretKey
-          exc.keys = ctx.sign_result.invalid_signers
-          raise exc
+        rescue ex : GPGME::Error::UnusablePublicKey
+          ex.keys = ctx.encrypt_result.invalid_recipients
+          raise ex
+        rescue ex : GPGME::Error::UnusableSecretKey
+          ex.keys = ctx.sign_result.invalid_signers
+          raise ex
         end
       end
 
@@ -44,7 +44,7 @@ module GPGME
       decrypt(cipher, options) { }
     end
 
-    def decrypt(cipher, options = {} of String => OptionValue, &block : Signature ->) : Data
+    def decrypt(cipher, options = {} of String => OptionValue, & : Signature ->) : Data
       options = merge_options(options)
 
       plain_data = Data.new(options["output"]?.as?(Data | IO | String | Int32 | Nil))
@@ -53,12 +53,12 @@ module GPGME
       Ctx.new(options) do |ctx|
         begin
           ctx.decrypt_verify(cipher_data, plain_data)
-        rescue exc : GPGME::Error::UnsupportedAlgorithm
-          exc.algorithm = ctx.decrypt_result.unsupported_algorithm
-          raise exc
-        rescue exc : GPGME::Error::WrongKeyUsage
-          exc.key_usage = ctx.decrypt_result.wrong_key_usage ? 1 : 0
-          raise exc
+        rescue ex : GPGME::Error::UnsupportedAlgorithm
+          ex.algorithm = ctx.decrypt_result.unsupported_algorithm
+          raise ex
+        rescue ex : GPGME::Error::WrongKeyUsage
+          ex.key_usage = ctx.decrypt_result.wrong_key_usage? ? 1 : 0
+          raise ex
         end
 
         ctx.verify_result.signatures.each do |signature|
@@ -85,8 +85,8 @@ module GPGME
                  when Key
                    [signer]
                  when Array(String | Key)
-                   signer.flat_map do |s|
-                     s.is_a?(String) ? Key.find(:secret, s) : [s]
+                   signer.flat_map do |item|
+                     item.is_a?(String) ? Key.find(:secret, item) : [item]
                    end
                  else
                    [] of Key
@@ -96,9 +96,9 @@ module GPGME
 
         begin
           ctx.sign(plain, output, mode)
-        rescue exc : GPGME::Error::UnusableSecretKey
-          exc.keys = ctx.sign_result.invalid_signers
-          raise exc
+        rescue ex : GPGME::Error::UnusableSecretKey
+          ex.keys = ctx.sign_result.invalid_signers
+          raise ex
         end
       end
 
@@ -110,7 +110,7 @@ module GPGME
       verify(sig, options) { }
     end
 
-    def verify(sig, options = {} of String => OptionValue, &block : Signature ->) : Data?
+    def verify(sig, options = {} of String => OptionValue, & : Signature ->) : Data?
       options = merge_options(options)
 
       sig_data = Data.new(sig)
@@ -166,11 +166,11 @@ module GPGME
 
       lookup = {} of String => Key
       recipients.each do |key|
-        key.fingerprint.try { |f| lookup[f] = key }
-        key.fingerprint.try { |f| lookup[f[-16..-1]] = key if f.size >= 16 }
-        key.fingerprint.try { |f| lookup[f[-8..-1]] = key if f.size >= 8 }
+        key.fingerprint.try { |fpr| lookup[fpr] = key }
+        key.fingerprint.try { |fpr| lookup[fpr[-16..-1]] = key if fpr.size >= 16 }
+        key.fingerprint.try { |fpr| lookup[fpr[-8..-1]] = key if fpr.size >= 8 }
         key.uids.each do |uid|
-          uid.email.try { |e| lookup[e] = key }
+          uid.email.try { |email| lookup[email] = key }
         end
       end
 

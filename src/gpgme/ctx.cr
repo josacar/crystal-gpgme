@@ -2,7 +2,7 @@ module GPGME
   class Ctx
     getter handle : LibGPGME::Ctx
 
-    def self.new(options : Hash(String, OptionValue) = {} of String => OptionValue, &block : Ctx ->)
+    def self.new(options : Hash(String, OptionValue) = {} of String => OptionValue, & : Ctx ->)
       ctx = new(options)
       begin
         GPGME.synchronize { yield ctx }
@@ -174,7 +174,7 @@ module GPGME
       raise exc if exc
     end
 
-    def each_key(pattern : String? = nil, secret_only : Bool = false, &block : Key ->)
+    def each_key(pattern : String? = nil, secret_only : Bool = false, & : Key ->)
       keylist_start(pattern, secret_only)
       begin
         loop { yield keylist_next }
@@ -444,7 +444,7 @@ module GPGME
     end
 
     # Default passphrase callback: writes the hook value as a line to fd.
-    PASSPHRASE_CALLBACK = ->(hook : Void*, uid_hint : LibC::Char*, passphrase_info : LibC::Char*, prev_was_bad : Int32, fd : Int32) : UInt32 {
+    PASSPHRASE_CALLBACK = ->(hook : Void*, _uid_hint : LibC::Char*, _passphrase_info : LibC::Char*, _prev_was_bad : Int32, fd : Int32) : UInt32 {
       pass = String.new(hook.as(Pointer(LibC::Char)))
       line = "#{pass}\n"
       # Use direct C write to avoid closing the fd.

@@ -135,7 +135,7 @@ module GPGME
     end
 
     def expired : Bool
-      @subkeys.any? { |sk| sk.expired? }
+      @subkeys.any?(&.expired?)
     end
 
     def ==(other : Key) : Bool
@@ -156,7 +156,7 @@ module GPGME
       sk = primary_subkey
       io << (secret? ? "sec" : "pub") << "   "
       io << sk.try(&.length) << sk.try(&.pubkey_algo_letter) << "/" << sha
-      io << " " << sk.try { |s| s.timestamp.try(&.to_s("%Y-%m-%d")) }
+      io << " " << sk.try { |sub| sub.timestamp.try(&.to_s("%Y-%m-%d")) }
       io << "\n"
       @uids.each do |uid|
         io << "uid\t\t" << uid.name << " <" << uid.email << ">\n"

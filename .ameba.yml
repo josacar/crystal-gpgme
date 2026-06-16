@@ -1,0 +1,14 @@
+Excluded:
+  - lib/
+  - bin/
+
+Naming/ConstantNames:
+  Enabled: true
+  Excluded:
+    - src/gpgme/constants.cr
+
+Metrics/CyclomaticComplexity:
+  Enabled: true
+  Excluded:
+    - src/gpgme/error.cr
+    - src/gpgme/ctx.cr

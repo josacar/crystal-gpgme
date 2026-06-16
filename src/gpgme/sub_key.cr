@@ -85,7 +85,7 @@ module GPGME
     end
 
     def sha : String?
-      (@fpr || @keyid).try { |s| s.size >= 8 ? s[-8..-1] : s }
+      (@fpr || @keyid).try { |id| id.size >= 8 ? id[-8..-1] : id }
     end
 
     PUBKEY_ALGO_LETTERS = {
